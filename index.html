@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIPANTAI — Sistem Pendataan TPI</title>
+
+  <!-- Leaflet.js untuk peta interaktif -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER / NAVBAR ===== -->
+  <header class="navbar">
+    <div class="navbar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ikon gelombang + jangkar stilasi -->
+          <circle cx="20" cy="20" r="18" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+          <path d="M8 24 Q14 18 20 24 Q26 30 32 24" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M8 19 Q14 13 20 19 Q26 25 32 19" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <circle cx="20" cy="12" r="3" fill="white"/>
+          <line x1="20" y1="15" x2="20" y2="22" stroke="white" stroke-width="2"/>
+          <line x1="15" y1="19" x2="25" y2="19" stroke="white" stroke-width="2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">SIPANTAI</div>
+        <div class="brand-sub">Sistem Pendataan Depo TPI</div>
+      </div>
+    </div>
+
+    <!-- Navigasi tab utama -->
+    <nav class="navbar-nav">
+      <button class="nav-btn active" data-tab="form" onclick="switchTab('form')">
+        <span class="nav-icon">＋</span> Input Data
+      </button>
+      <button class="nav-btn" data-tab="map" onclick="switchTab('map')">
+        <span class="nav-icon">◎</span> Peta Lokasi
+      </button>
+      <button class="nav-btn" data-tab="list" onclick="switchTab('list')">
+        <span class="nav-icon">≡</span> Daftar Depo
+      </button>
+    </nav>
+
+    <!-- Counter total data -->
+    <div class="navbar-counter">
+      <span id="totalCount">0</span>
+      <small>Total Depo</small>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- ============================================================ -->
+    <!-- TAB 1: FORM INPUT DATA DEPO -->
+    <!-- ============================================================ -->
+    <section id="tab-form" class="tab-section active">
+      <div class="section-header">
+        <h1>Input Data Depo</h1>
+        <p>Isi formulir di bawah untuk mendaftarkan depo baru ke sistem</p>
+      </div>
+
+      <div class="form-grid">
+
+        <!-- ---- CARD KIRI: Data Identitas ---- -->
+        <div class="form-card">
+          <div class="card-label">01</div>
+          <h3 class="card-title">Identitas Depo</h3>
+
+          <div class="field-group">
+            <label class="field-label" for="namaTPI">Nama TPI <span class="required">*</span></label>
+            <input type="text" id="namaTPI" class="field-input" placeholder="Contoh: TPI Bajomulyo" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="namaDepo">Nama Depo <span class="required">*</span></label>
+            <input type="text" id="namaDepo" class="field-input" placeholder="Contoh: Depo Es Maju Jaya" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="namaPemilik">Nama Pemilik <span class="required">*</span></label>
+            <input type="text" id="namaPemilik" class="field-input" placeholder="Nama lengkap pemilik" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="nomorHP">Nomor HP <span class="required">*</span></label>
+            <input type="tel" id="nomorHP" class="field-input" placeholder="08xxxxxxxxxx" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="jenisUsaha">Jenis Usaha <span class="required">*</span></label>
+            <select id="jenisUsaha" class="field-select">
+              <option value="">— Pilih Jenis Usaha —</option>
+              <option value="Depo Es">Depo Es</option>
+              <option value="Agen Es">Agen Es</option>
+              <option value="Persewaan Basket">Persewaan Basket</option>
+              <option value="Bakul">Bakul</option>
+              <option value="Nelayan">Nelayan</option>
+              <option value="Sewa Lahan">Sewa Lahan</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="alamatDepo">Alamat Depo <span class="required">*</span></label>
+            <textarea id="alamatDepo" class="field-textarea" rows="3" placeholder="Alamat lengkap lokasi depo"></textarea>
+          </div>
+        </div>
+
+        <!-- ---- CARD KANAN: Lokasi & Media ---- -->
+        <div class="form-card">
+          <div class="card-label">02</div>
+          <h3 class="card-title">Lokasi & Media</h3>
+
+          <!-- GPS Section -->
+          <div class="gps-container">
+            <div class="gps-header">
+              <span class="gps-title">Koordinat GPS</span>
+              <span id="gpsStatus" class="gps-badge gps-idle">Belum Diambil</span>
+            </div>
+            <div class="gps-fields">
+              <div class="field-group half">
+                <label class="field-label" for="latitude">Latitude <span class="required">*</span></label>
+                <input type="text" id="latitude" class="field-input gps-input" placeholder="–" readonly />
+              </div>
+              <div class="field-group half">
+                <label class="field-label" for="longitude">Longitude <span class="required">*</span></label>
+                <input type="text" id="longitude" class="field-input gps-input" placeholder="–" readonly />
+              </div>
+            </div>
+
+            <!-- Tombol Ambil Lokasi -->
+            <button id="btnGPS" class="btn-gps" onclick="ambilLokasi()">
+              <span class="btn-gps-icon">
+                <!-- Ikon target/crosshair -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="8"/>
+                  <line x1="12" y1="2" x2="12" y2="6"/>
+                  <line x1="12" y1="18" x2="12" y2="22"/>
+                  <line x1="2" y1="12" x2="6" y2="12"/>
+                  <line x1="18" y1="12" x2="22" y2="12"/>
+                  <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                </svg>
+              </span>
+              <span id="btnGPSText">Ambil Lokasi GPS</span>
+            </button>
+
+            <!-- Mini preview peta setelah GPS diambil -->
+            <div id="miniMapContainer" class="mini-map-container hidden">
+              <div id="miniMap" style="height:180px; border-radius:12px;"></div>
+            </div>
+          </div>
+
+          <!-- Upload Foto -->
+          <div class="field-group" style="margin-top:20px;">
+            <label class="field-label" for="fotoDepo">Foto Depo <span class="optional">(opsional)</span></label>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fotoDepo').click()">
+              <div class="upload-icon">📷</div>
+              <div class="upload-text">Klik untuk memilih foto</div>
+              <div class="upload-hint">JPG, PNG, WEBP — maks 5 MB</div>
+              <input type="file" id="fotoDepo" accept="image/*" style="display:none" onchange="previewFoto(event)" />
+            </div>
+            <div id="fotoPreview" class="foto-preview hidden"></div>
+          </div>
+
+          <!-- Keterangan -->
+          <div class="field-group" style="margin-top:20px;">
+            <label class="field-label" for="keterangan">Keterangan <span class="optional">(opsional)</span></label>
+            <textarea id="keterangan" class="field-textarea" rows="3" placeholder="Catatan tambahan..."></textarea>
+          </div>
+        </div>
+
+      </div><!-- end .form-grid -->
+
+      <!-- Tombol Simpan -->
+      <div class="form-actions">
+        <button class="btn-reset" onclick="resetForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.3"/></svg>
+          Reset Form
+        </button>
+        <button class="btn-save" id="btnSave" onclick="simpanData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Simpan Data Depo
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 2: PETA LOKASI -->
+    <!-- ============================================================ -->
+    <section id="tab-map" class="tab-section">
+      <div class="section-header">
+        <h1>Peta Sebaran Depo</h1>
+        <p>Visualisasi seluruh lokasi depo TPI yang terdaftar</p>
+      </div>
+
+      <!-- Legend peta -->
+      <div class="map-legend">
+        <div class="legend-item"><span class="legend-dot dot-es"></span>Depo Es / Agen Es</div>
+        <div class="legend-item"><span class="legend-dot dot-basket"></span>Persewaan Basket</div>
+        <div class="legend-item"><span class="legend-dot dot-bakul"></span>Bakul</div>
+        <div class="legend-item"><span class="legend-dot dot-nelayan"></span>Nelayan</div>
+        <div class="legend-item"><span class="legend-dot dot-lahan"></span>Sewa Lahan</div>
+      </div>
+
+      <!-- Container Peta Utama -->
+      <div id="mainMap" class="main-map"></div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 3: DAFTAR DATA -->
+    <!-- ============================================================ -->
+    <section id="tab-list" class="tab-section">
+      <div class="section-header">
+        <h1>Daftar Depo Terdaftar</h1>
+        <p>Kelola dan cari data depo yang sudah diinput</p>
+      </div>
+
+      <!-- Toolbar filter & search -->
+      <div class="list-toolbar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Cari nama depo, pemilik..." oninput="filterData()" />
+        </div>
+        <select id="filterTPI" class="filter-select" onchange="filterData()">
+          <option value="">Semua TPI</option>
+        </select>
+        <select id="filterJenis" class="filter-select" onchange="filterData()">
+          <option value="">Semua Jenis</option>
+          <option value="Depo Es">Depo Es</option>
+          <option value="Agen Es">Agen Es</option>
+          <option value="Persewaan Basket">Persewaan Basket</option>
+          <option value="Bakul">Bakul</option>
+          <option value="Nelayan">Nelayan</option>
+          <option value="Sewa Lahan">Sewa Lahan</option>
+        </select>
+        <button class="btn-refresh" onclick="muatData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <!-- Tabel data -->
+      <div class="table-wrapper">
+        <table class="data-table" id="dataTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tanggal</th>
+              <th>Nama TPI</th>
+              <th>Nama Depo</th>
+              <th>Pemilik</th>
+              <th>No. HP</th>
+              <th>Jenis Usaha</th>
+              <th>Koordinat</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Data akan diisi oleh JavaScript -->
+          </tbody>
+        </table>
+        <!-- State kosong -->
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">🗺️</div>
+          <h3>Belum ada data</h3>
+          <p>Mulai tambahkan depo menggunakan form Input Data</p>
+        </div>
+        <!-- Loading state -->
+        <div id="loadingState" class="loading-state hidden">
+          <div class="loading-spinner"></div>
+          <p>Memuat data...</p>
+        </div>
+      </div>
+
+      <!-- Pagination info -->
+      <div class="table-footer">
+        <span id="dataInfo">Menampilkan 0 data</span>
+      </div>
+    </section>
+
+  </main><!-- end .main-content -->
+
+  <!-- ===== TOAST NOTIFICATION ===== -->
+  <div id="toast" class="toast hidden">
+    <div class="toast-icon" id="toastIcon">✓</div>
+    <div class="toast-body">
+      <div class="toast-title" id="toastTitle">Sukses</div>
+      <div class="toast-msg" id="toastMsg">Data berhasil disimpan</div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL LOADING SIMPAN ===== -->
+  <div id="savingOverlay" class="saving-overlay hidden">
+    <div class="saving-box">
+      <div class="saving-wave">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p>Menyimpan data ke Spreadsheet...</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
