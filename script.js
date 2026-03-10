@@ -22,7 +22,7 @@
  * GANTI URL INI dengan URL Web App dari Google Apps Script Anda.
  * Cara deploy: Extensions → Apps Script → Deploy → New Deployment → Web App
  */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxhMKZ2wXNpoEMuZxb_vJ3KiweBFvQ7leXHRdlm6E__s8zMMniqz1DXfmOaiv9k_t7ZbQ/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpg_5ur8moIBkIJkfQm3I44HGMagNz8juT1mkjvLjLMZUi_IucSLB_UEFAZmRQA5DFLg/exec';
 
 // State koordinat GPS yang sudah diambil
 let gpsData = { lat: null, lng: null, ready: false };
@@ -272,10 +272,10 @@ async function simpanData() {
 
   try {
     // ---- Kirim data ke Google Apps Script ----
+    // Gunakan 'text/plain' untuk menghindari preflight CORS (OPTIONS) yang sering gagal di GAS
     const response = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors',   // Google Apps Script memerlukan no-cors
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(data)
     });
 
@@ -352,11 +352,15 @@ async function muatData() {
     const res = await fetch(APPS_SCRIPT_URL + '?action=get', { mode: 'cors' });
     const json = await res.json();
 
-    allData = json.data || [];
+    if (json.status === 'success') {
+      allData = json.data || [];
+    } else {
+      throw new Error(json.message || 'Gagal memuat data dari server.');
+    }
   } catch (err) {
-    // Fallback ke localStorage
+    // Fallback ke localStorage jika server error atau miskonfigurasi
     allData = JSON.parse(localStorage.getItem('depoTPI') || '[]');
-    console.info('Menggunakan data lokal:', allData.length, 'entri');
+    console.warn('Gagal muat dari spreadsheet, menggunakan data lokal:', allData.length);
   }
 
   loading.classList.add('hidden');
@@ -457,6 +461,12 @@ function renderTabel(data) {
         ${d.latitude ? `${d.latitude}, ${d.longitude}` : '-'}
       </td>
       <td>
+        ${d.urlFoto ? `
+          <a href="${d.urlFoto}" target="_blank" class="btn-maps" style="background:#f1f5f9; color:#1e40af;">
+            📷 Lihat
+          </a>` : '<span class="muted">-</span>'}
+      </td>
+      <td>
         ${d.latitude ? `
           <a href="https://maps.google.com/?q=${d.latitude},${d.longitude}"
              target="_blank" class="btn-maps">
@@ -483,11 +493,7 @@ function escHtml(str) {
  */
 function getBadgeClass(jenis) {
   const map = {
-    'Depo Es': 'badge-es',
-    'Agen Es': 'badge-es',
-    'Persewaan Basket': 'badge-basket',
-    'Bakul': 'badge-bakul',
-    'Nelayan': 'badge-nelayan',
+    'Bakul Ikan': 'badge-bakul',
     'Sewa Lahan': 'badge-lahan'
   };
   return map[jenis] || 'badge-es';
@@ -498,14 +504,10 @@ function getBadgeClass(jenis) {
  */
 function getMarkerColor(jenis) {
   const map = {
-    'Depo Es': '#3b82f6',
-    'Agen Es': '#3b82f6',
-    'Persewaan Basket': '#f59e0b',
-    'Bakul': '#ef4444',
-    'Nelayan': '#10b981',
+    'Bakul Ikan': '#ef4444',
     'Sewa Lahan': '#8b5cf6'
   };
-  return map[jenis] || '#3b82f6';
+  return map[jenis] || '#1e40af';
 }
 
 
@@ -602,6 +604,7 @@ function renderMarkers(data) {
           <strong>${escHtml(d.nomorHP || '-')}</strong>
         </div>
         <span class="popup-badge">${escHtml(d.jenisUsaha || '')}</span>
+        ${d.urlFoto ? `<a href="${d.urlFoto}" target="_blank" class="popup-link" style="background:#f1f5f9; color:#1e40af; border:1px solid #cbd5e1; margin-bottom:4px;">🖼 Lihat Foto</a>` : ''}
         <a href="https://maps.google.com/?q=${lat},${lng}"
            target="_blank" class="popup-link">🗺 Buka di Google Maps</a>
       </div>
@@ -690,4 +693,3 @@ document.addEventListener('DOMContentLoaded', () => {
   const stored = JSON.parse(localStorage.getItem('depoTPI') || '[]');
   allData = stored;
 });
-
