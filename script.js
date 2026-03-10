@@ -80,9 +80,9 @@ function ambilLokasi() {
     return;
   }
 
-  const btn     = document.getElementById('btnGPS');
+  const btn = document.getElementById('btnGPS');
   const btnText = document.getElementById('btnGPSText');
-  const badge   = document.getElementById('gpsStatus');
+  const badge = document.getElementById('gpsStatus');
 
   // Set status: Loading
   btnText.textContent = 'Mengambil lokasi...';
@@ -103,13 +103,13 @@ function ambilLokasi() {
       const lat = position.coords.latitude.toFixed(7);
       const lng = position.coords.longitude.toFixed(7);
 
-      document.getElementById('latitude').value  = lat;
+      document.getElementById('latitude').value = lat;
       document.getElementById('longitude').value = lng;
 
       gpsData = { lat: parseFloat(lat), lng: parseFloat(lng), ready: true };
 
       badge.textContent = '✓ GPS Aktif';
-      badge.className   = 'gps-badge gps-success';
+      badge.className = 'gps-badge gps-success';
       btnText.textContent = 'Perbarui Lokasi GPS';
       btn.disabled = false;
 
@@ -127,7 +127,7 @@ function ambilLokasi() {
       };
 
       badge.textContent = '✗ Gagal';
-      badge.className   = 'gps-badge gps-error';
+      badge.className = 'gps-badge gps-error';
       btnText.textContent = 'Coba Lagi';
       btn.disabled = false;
 
@@ -163,7 +163,7 @@ function tampilkanMiniMap(lat, lng) {
   // Marker posisi saat ini
   const marker = L.circleMarker([lat, lng], {
     radius: 10,
-    fillColor: '#00d4ff',
+    fillColor: '#1e40af', // Primary Navy
     color: '#fff',
     weight: 2,
     opacity: 1,
@@ -214,25 +214,25 @@ function previewFoto(event) {
 async function simpanData() {
   // Ambil nilai semua field
   const data = {
-    namaTPI:     document.getElementById('namaTPI').value.trim(),
-    namaDepo:    document.getElementById('namaDepo').value.trim(),
+    namaTPI: document.getElementById('namaTPI').value.trim(),
+    namaDepo: document.getElementById('namaDepo').value.trim(),
     namaPemilik: document.getElementById('namaPemilik').value.trim(),
-    nomorHP:     document.getElementById('nomorHP').value.trim(),
-    jenisUsaha:  document.getElementById('jenisUsaha').value,
-    alamatDepo:  document.getElementById('alamatDepo').value.trim(),
-    latitude:    document.getElementById('latitude').value,
-    longitude:   document.getElementById('longitude').value,
-    keterangan:  document.getElementById('keterangan').value.trim()
+    nomorHP: document.getElementById('nomorHP').value.trim(),
+    jenisUsaha: document.getElementById('jenisUsaha').value,
+    alamatDepo: document.getElementById('alamatDepo').value.trim(),
+    latitude: document.getElementById('latitude').value,
+    longitude: document.getElementById('longitude').value,
+    keterangan: document.getElementById('keterangan').value.trim()
   };
 
   // ---- Validasi Field Wajib ----
   const wajib = [
-    { field: 'namaTPI',     label: 'Nama TPI' },
-    { field: 'namaDepo',    label: 'Nama Depo' },
+    { field: 'namaTPI', label: 'Nama TPI' },
+    { field: 'namaDepo', label: 'Nama Depo' },
     { field: 'namaPemilik', label: 'Nama Pemilik' },
-    { field: 'nomorHP',     label: 'Nomor HP' },
-    { field: 'jenisUsaha',  label: 'Jenis Usaha' },
-    { field: 'alamatDepo',  label: 'Alamat Depo' }
+    { field: 'nomorHP', label: 'Nomor HP' },
+    { field: 'jenisUsaha', label: 'Jenis Usaha' },
+    { field: 'alamatDepo', label: 'Alamat Depo' }
   ];
 
   for (const item of wajib) {
@@ -323,7 +323,7 @@ function simpanLokal(data) {
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload  = () => resolve(reader.result);
+    reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -339,9 +339,9 @@ function fileToBase64(file) {
  * Jika gagal, fallback ke localStorage.
  */
 async function muatData() {
-  const tbody    = document.getElementById('tableBody');
-  const loading  = document.getElementById('loadingState');
-  const empty    = document.getElementById('emptyState');
+  const tbody = document.getElementById('tableBody');
+  const loading = document.getElementById('loadingState');
+  const empty = document.getElementById('emptyState');
 
   tbody.innerHTML = '';
   loading.classList.remove('hidden');
@@ -349,7 +349,7 @@ async function muatData() {
 
   try {
     // Coba ambil dari Apps Script (GET request)
-    const res  = await fetch(APPS_SCRIPT_URL + '?action=get', { mode: 'cors' });
+    const res = await fetch(APPS_SCRIPT_URL + '?action=get', { mode: 'cors' });
     const json = await res.json();
 
     allData = json.data || [];
@@ -405,19 +405,19 @@ function updateCounter() {
  * Filter data berdasarkan input pencarian dan dropdown.
  */
 function filterData() {
-  const search    = document.getElementById('searchInput').value.toLowerCase();
+  const search = document.getElementById('searchInput').value.toLowerCase();
   const filterTPI = document.getElementById('filterTPI').value;
   const filterJns = document.getElementById('filterJenis').value;
 
   const filtered = allData.filter(d => {
     const matchSearch = !search ||
-      (d.namaDepo    || '').toLowerCase().includes(search) ||
+      (d.namaDepo || '').toLowerCase().includes(search) ||
       (d.namaPemilik || '').toLowerCase().includes(search) ||
-      (d.namaTPI     || '').toLowerCase().includes(search) ||
-      (d.alamatDepo  || '').toLowerCase().includes(search);
+      (d.namaTPI || '').toLowerCase().includes(search) ||
+      (d.alamatDepo || '').toLowerCase().includes(search);
 
-    const matchTPI  = !filterTPI || d.namaTPI    === filterTPI;
-    const matchJns  = !filterJns || d.jenisUsaha === filterJns;
+    const matchTPI = !filterTPI || d.namaTPI === filterTPI;
+    const matchJns = !filterJns || d.jenisUsaha === filterJns;
 
     return matchSearch && matchTPI && matchJns;
   });
@@ -432,7 +432,7 @@ function filterData() {
 function renderTabel(data) {
   const tbody = document.getElementById('tableBody');
   const empty = document.getElementById('emptyState');
-  const info  = document.getElementById('dataInfo');
+  const info = document.getElementById('dataInfo');
 
   info.textContent = `Menampilkan ${data.length} data`;
 
@@ -498,14 +498,14 @@ function getBadgeClass(jenis) {
  */
 function getMarkerColor(jenis) {
   const map = {
-    'Depo Es': '#00d4ff',
-    'Agen Es': '#00d4ff',
-    'Persewaan Basket': '#ffc857',
-    'Bakul': '#ff6b6b',
-    'Nelayan': '#00b89c',
-    'Sewa Lahan': '#b388ff'
+    'Depo Es': '#3b82f6',
+    'Agen Es': '#3b82f6',
+    'Persewaan Basket': '#f59e0b',
+    'Bakul': '#ef4444',
+    'Nelayan': '#10b981',
+    'Sewa Lahan': '#8b5cf6'
   };
-  return map[jenis] || '#00d4ff';
+  return map[jenis] || '#3b82f6';
 }
 
 
@@ -630,14 +630,14 @@ function renderMarkers(data) {
  */
 function showToast(type, title, msg) {
   const toast = document.getElementById('toast');
-  const icon  = document.getElementById('toastIcon');
-  const ttl   = document.getElementById('toastTitle');
-  const tmsg  = document.getElementById('toastMsg');
+  const icon = document.getElementById('toastIcon');
+  const ttl = document.getElementById('toastTitle');
+  const tmsg = document.getElementById('toastMsg');
 
   icon.textContent = type === 'success' ? '✓' : '✗';
-  ttl.textContent  = title;
+  ttl.textContent = title;
   tmsg.textContent = msg;
-  toast.className  = type === 'error' ? 'toast error' : 'toast';
+  toast.className = type === 'error' ? 'toast error' : 'toast';
 
   // Tampilkan
   toast.classList.remove('hidden');
@@ -651,11 +651,11 @@ function showToast(type, title, msg) {
  * Reset form input ke kondisi awal.
  */
 function resetForm() {
-  ['namaTPI','namaDepo','namaPemilik','nomorHP','alamatDepo','latitude','longitude','keterangan']
+  ['namaTPI', 'namaDepo', 'namaPemilik', 'nomorHP', 'alamatDepo', 'latitude', 'longitude', 'keterangan']
     .forEach(id => { document.getElementById(id).value = ''; });
 
   document.getElementById('jenisUsaha').value = '';
-  document.getElementById('fotoDepo').value   = '';
+  document.getElementById('fotoDepo').value = '';
 
   const preview = document.getElementById('fotoPreview');
   preview.innerHTML = '';
@@ -666,7 +666,7 @@ function resetForm() {
 
   const badge = document.getElementById('gpsStatus');
   badge.textContent = 'Belum Diambil';
-  badge.className   = 'gps-badge gps-idle';
+  badge.className = 'gps-badge gps-idle';
 
   document.getElementById('btnGPSText').textContent = 'Ambil Lokasi GPS';
 
