@@ -22,7 +22,7 @@
  * GANTI URL INI dengan URL Web App dari Google Apps Script Anda.
  * Cara deploy: Extensions → Apps Script → Deploy → New Deployment → Web App
  */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpg_5ur8moIBkIJkfQm3I44HGMagNz8juT1mkjvLjLMZUi_IucSLB_UEFAZmRQA5DFLg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwE4LrqhVSFppdrSogiKlvAgoa2Dg01EAC_aI0JQfdrdWUryVgpob4y_lQJdJGQ61KT0w/exec';
 
 // State koordinat GPS yang sudah diambil
 let gpsData = { lat: null, lng: null, ready: false };
@@ -693,3 +693,4 @@ document.addEventListener('DOMContentLoaded', () => {
   const stored = JSON.parse(localStorage.getItem('depoTPI') || '[]');
   allData = stored;
 });
+
