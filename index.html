@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,10 +13,12 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <!-- ===== HEADER / NAVBAR ===== -->
@@ -24,12 +27,15 @@
       <div class="brand-icon">
         <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <!-- Ikon gelombang + jangkar stilasi -->
-          <circle cx="20" cy="20" r="18" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
-          <path d="M8 24 Q14 18 20 24 Q26 30 32 24" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <path d="M8 19 Q14 13 20 19 Q26 25 32 19" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <circle cx="20" cy="12" r="3" fill="white"/>
-          <line x1="20" y1="15" x2="20" y2="22" stroke="white" stroke-width="2"/>
-          <line x1="15" y1="19" x2="25" y2="19" stroke="white" stroke-width="2"/>
+          <circle cx="20" cy="20" r="18" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)"
+            stroke-width="1.5" />
+          <path d="M8 24 Q14 18 20 24 Q26 30 32 24" stroke="white" stroke-width="2.5" stroke-linecap="round"
+            fill="none" />
+          <path d="M8 19 Q14 13 20 19 Q26 25 32 19" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"
+            stroke-linecap="round" fill="none" />
+          <circle cx="20" cy="12" r="3" fill="white" />
+          <line x1="20" y1="15" x2="20" y2="22" stroke="white" stroke-width="2" />
+          <line x1="15" y1="19" x2="25" y2="19" stroke="white" stroke-width="2" />
         </svg>
       </div>
       <div>
@@ -79,7 +85,14 @@
 
           <div class="field-group">
             <label class="field-label" for="namaTPI">Nama TPI <span class="required">*</span></label>
-            <input type="text" id="namaTPI" class="field-input" placeholder="Contoh: TPI Bajomulyo" />
+            <select id="namaTPI" class="field-input">
+              <option value="" disabled selected>Pilih TPI...</option>
+              <option value="TPI Tunggulsari">TPI Tunggulsari</option>
+              <option value="TPI Tanjungsari">TPI Tanjungsari</option>
+              <option value="TPI Pasarbanggi">TPI Pasarbanggi</option>
+              <option value="TPI Pangkalan">TPI Pangkalan</option>
+              <option value="TPI Karanglincak">TPI Karanglincak</option>
+            </select>
           </div>
 
           <div class="field-group">
@@ -101,18 +114,15 @@
             <label class="field-label" for="jenisUsaha">Jenis Usaha <span class="required">*</span></label>
             <select id="jenisUsaha" class="field-select">
               <option value="">— Pilih Jenis Usaha —</option>
-              <option value="Depo Es">Depo Es</option>
-              <option value="Agen Es">Agen Es</option>
-              <option value="Persewaan Basket">Persewaan Basket</option>
               <option value="Bakul">Bakul</option>
-              <option value="Nelayan">Nelayan</option>
               <option value="Sewa Lahan">Sewa Lahan</option>
             </select>
           </div>
 
           <div class="field-group">
             <label class="field-label" for="alamatDepo">Alamat Depo <span class="required">*</span></label>
-            <textarea id="alamatDepo" class="field-textarea" rows="3" placeholder="Alamat lengkap lokasi depo"></textarea>
+            <textarea id="alamatDepo" class="field-textarea" rows="3"
+              placeholder="Alamat lengkap lokasi depo"></textarea>
           </div>
         </div>
 
@@ -143,12 +153,12 @@
               <span class="btn-gps-icon">
                 <!-- Ikon target/crosshair -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="8"/>
-                  <line x1="12" y1="2" x2="12" y2="6"/>
-                  <line x1="12" y1="18" x2="12" y2="22"/>
-                  <line x1="2" y1="12" x2="6" y2="12"/>
-                  <line x1="18" y1="12" x2="22" y2="12"/>
-                  <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                  <circle cx="12" cy="12" r="8" />
+                  <line x1="12" y1="2" x2="12" y2="6" />
+                  <line x1="12" y1="18" x2="12" y2="22" />
+                  <line x1="2" y1="12" x2="6" y2="12" />
+                  <line x1="18" y1="12" x2="22" y2="12" />
+                  <circle cx="12" cy="12" r="2" fill="currentColor" />
                 </svg>
               </span>
               <span id="btnGPSText">Ambil Lokasi GPS</span>
@@ -184,11 +194,18 @@
       <!-- Tombol Simpan -->
       <div class="form-actions">
         <button class="btn-reset" onclick="resetForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.3"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10" />
+            <path d="M3.51 15a9 9 0 1 0 .49-5.3" />
+          </svg>
           Reset Form
         </button>
         <button class="btn-save" id="btnSave" onclick="simpanData()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
           Simpan Data Depo
         </button>
       </div>
@@ -205,10 +222,7 @@
 
       <!-- Legend peta -->
       <div class="map-legend">
-        <div class="legend-item"><span class="legend-dot dot-es"></span>Depo Es / Agen Es</div>
-        <div class="legend-item"><span class="legend-dot dot-basket"></span>Persewaan Basket</div>
         <div class="legend-item"><span class="legend-dot dot-bakul"></span>Bakul</div>
-        <div class="legend-item"><span class="legend-dot dot-nelayan"></span>Nelayan</div>
         <div class="legend-item"><span class="legend-dot dot-lahan"></span>Sewa Lahan</div>
       </div>
 
@@ -229,24 +243,26 @@
       <div class="list-toolbar">
         <div class="search-box">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <input type="text" id="searchInput" class="search-input" placeholder="Cari nama depo, pemilik..." oninput="filterData()" />
+          <input type="text" id="searchInput" class="search-input" placeholder="Cari nama depo, pemilik..."
+            oninput="filterData()" />
         </div>
         <select id="filterTPI" class="filter-select" onchange="filterData()">
           <option value="">Semua TPI</option>
         </select>
         <select id="filterJenis" class="filter-select" onchange="filterData()">
           <option value="">Semua Jenis</option>
-          <option value="Depo Es">Depo Es</option>
-          <option value="Agen Es">Agen Es</option>
-          <option value="Persewaan Basket">Persewaan Basket</option>
           <option value="Bakul">Bakul</option>
-          <option value="Nelayan">Nelayan</option>
           <option value="Sewa Lahan">Sewa Lahan</option>
         </select>
         <button class="btn-refresh" onclick="muatData()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10" />
+            <polyline points="1 20 1 14 7 14" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+          </svg>
           Refresh
         </button>
       </div>
@@ -313,4 +329,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>
