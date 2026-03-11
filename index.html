@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Inter (Formal/Professional) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -222,7 +222,10 @@
 
       <!-- Legend peta -->
       <div class="map-legend">
-        <div class="legend-item"><span class="legend-dot dot-bakul"></span>Bakul Ikan</div>
+        <div class="legend-item"><span class="legend-dot dot-es"></span>Depo Es / Agen Es</div>
+        <div class="legend-item"><span class="legend-dot dot-basket"></span>Persewaan Basket</div>
+        <div class="legend-item"><span class="legend-dot dot-bakul"></span>Bakul</div>
+        <div class="legend-item"><span class="legend-dot dot-nelayan"></span>Nelayan</div>
         <div class="legend-item"><span class="legend-dot dot-lahan"></span>Sewa Lahan</div>
       </div>
 
@@ -254,7 +257,11 @@
         </select>
         <select id="filterJenis" class="filter-select" onchange="filterData()">
           <option value="">Semua Jenis</option>
-          <option value="Bakul Ikan">Bakul Ikan</option>
+          <option value="Depo Es">Depo Es</option>
+          <option value="Agen Es">Agen Es</option>
+          <option value="Persewaan Basket">Persewaan Basket</option>
+          <option value="Bakul">Bakul</option>
+          <option value="Nelayan">Nelayan</option>
           <option value="Sewa Lahan">Sewa Lahan</option>
         </select>
         <button class="btn-refresh" onclick="muatData()">
@@ -301,9 +308,12 @@
         </div>
       </div>
 
-      <!-- Pagination info -->
+      <!-- Pagination info & Controls -->
       <div class="table-footer">
         <span id="dataInfo">Menampilkan 0 data</span>
+        <div id="pagination" class="pagination-container">
+          <!-- Tombol pagination akan diisi JS -->
+        </div>
       </div>
     </section>
 
