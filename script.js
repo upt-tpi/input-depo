@@ -22,7 +22,7 @@
  * GANTI URL INI dengan URL Web App dari Google Apps Script Anda.
  * Cara deploy: Extensions → Apps Script → Deploy → New Deployment → Web App
  */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwE4LrqhVSFppdrSogiKlvAgoa2Dg01EAC_aI0JQfdrdWUryVgpob4y_lQJdJGQ61KT0w/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSykwtXCNEycb-KOnmVj3d5xzTpNZZ9ZYEOtnYY4xsSVWNWd9vfhJBiNFB8OEvuZRdiw/exec';
 
 // State koordinat GPS yang sudah diambil
 let gpsData = { lat: null, lng: null, ready: false };
@@ -34,6 +34,11 @@ let mainMapMarkers = [];
 
 // Data yang sudah dimuat dari spreadsheet
 let allData = [];
+
+// Pagination State
+let currentPage = 1;
+const itemsPerPage = 7;
+let filteredData = []; // Data yang sudah difilter dan siap di-paginate
 
 
 // ================================================================
@@ -163,7 +168,7 @@ function tampilkanMiniMap(lat, lng) {
   // Marker posisi saat ini
   const marker = L.circleMarker([lat, lng], {
     radius: 10,
-    fillColor: '#1e40af', // Primary Navy
+    fillColor: '#00d4ff',
     color: '#fff',
     weight: 2,
     opacity: 1,
@@ -272,10 +277,10 @@ async function simpanData() {
 
   try {
     // ---- Kirim data ke Google Apps Script ----
-    // Gunakan 'text/plain' untuk menghindari preflight CORS (OPTIONS) yang sering gagal di GAS
     const response = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      mode: 'no-cors',   // Google Apps Script memerlukan no-cors
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
 
@@ -352,19 +357,20 @@ async function muatData() {
     const res = await fetch(APPS_SCRIPT_URL + '?action=get', { mode: 'cors' });
     const json = await res.json();
 
-    if (json.status === 'success') {
-      allData = json.data || [];
-    } else {
-      throw new Error(json.message || 'Gagal memuat data dari server.');
-    }
+    allData = json.data || [];
   } catch (err) {
-    // Fallback ke localStorage jika server error atau miskonfigurasi
+    // Fallback ke localStorage
     allData = JSON.parse(localStorage.getItem('depoTPI') || '[]');
-    console.warn('Gagal muat dari spreadsheet, menggunakan data lokal:', allData.length);
+    console.info('Menggunakan data lokal:', allData.length, 'entri');
   }
 
   loading.classList.add('hidden');
-  renderTabel(allData);
+  
+  // Set filteredData awal
+  filteredData = allData;
+  currentPage = 1;
+  
+  renderTabel();
   updateFilterTPI();
   updateCounter();
 
@@ -394,10 +400,19 @@ function updateFilterTPI() {
 
 /**
  * Update angka counter di navbar.
+ * Mengambil jumlah data dari spreadsheet via Apps Script (GET).
+ * Fallback ke panjang allData jika koneksi gagal.
  */
-function updateCounter() {
-  const total = JSON.parse(localStorage.getItem('depoTPI') || '[]').length;
-  document.getElementById('totalCount').textContent = total;
+async function updateCounter() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL);
+    const json = await res.json();
+    const total = json.data ? json.data.length : 0;
+    document.getElementById('totalCount').textContent = total;
+  } catch (err) {
+    // Fallback: pakai data yang sudah dimuat ke allData
+    document.getElementById('totalCount').textContent = allData.length;
+  }
 }
 
 
@@ -405,15 +420,12 @@ function updateCounter() {
 // 7. FILTER & RENDER TABEL
 // ================================================================
 
-/**
- * Filter data berdasarkan input pencarian dan dropdown.
- */
 function filterData() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const filterTPI = document.getElementById('filterTPI').value;
   const filterJns = document.getElementById('filterJenis').value;
 
-  const filtered = allData.filter(d => {
+  filteredData = allData.filter(d => {
     const matchSearch = !search ||
       (d.namaDepo || '').toLowerCase().includes(search) ||
       (d.namaPemilik || '').toLowerCase().includes(search) ||
@@ -426,55 +438,108 @@ function filterData() {
     return matchSearch && matchTPI && matchJns;
   });
 
-  renderTabel(filtered);
+  currentPage = 1; // Reset ke halaman 1 saat filter berubah
+  renderTabel();
 }
 
 /**
- * Render data ke dalam tabel HTML.
- * @param {Array} data - Array data depo yang akan ditampilkan
+ * Render data ke dalam tabel HTML dengan dukungan pagination.
  */
-function renderTabel(data) {
+function renderTabel() {
   const tbody = document.getElementById('tableBody');
   const empty = document.getElementById('emptyState');
   const info = document.getElementById('dataInfo');
 
-  info.textContent = `Menampilkan ${data.length} data`;
-
-  if (data.length === 0) {
+  const total = filteredData.length;
+  
+  if (total === 0) {
     tbody.innerHTML = '';
     empty.classList.remove('hidden');
+    info.textContent = 'Menampilkan 0 data';
+    renderPagination(0);
     return;
   }
 
   empty.classList.add('hidden');
 
-  tbody.innerHTML = data.map((d, i) => `
-    <tr>
-      <td class="muted">${i + 1}</td>
-      <td class="muted">${d.tanggalInput || '-'}</td>
-      <td>${escHtml(d.namaTPI || '-')}</td>
-      <td><strong>${escHtml(d.namaDepo || '-')}</strong></td>
-      <td>${escHtml(d.namaPemilik || '-')}</td>
-      <td class="muted">${escHtml(d.nomorHP || '-')}</td>
-      <td><span class="jenis-badge ${getBadgeClass(d.jenisUsaha)}">${escHtml(d.jenisUsaha || '-')}</span></td>
-      <td class="muted" style="font-family:monospace;font-size:11px;">
-        ${d.latitude ? `${d.latitude}, ${d.longitude}` : '-'}
-      </td>
-      <td>
-        ${d.urlFoto ? `
-          <a href="${d.urlFoto}" target="_blank" class="btn-maps" style="background:#f1f5f9; color:#1e40af;">
-            📷 Lihat
-          </a>` : '<span class="muted">-</span>'}
-      </td>
-      <td>
-        ${d.latitude ? `
-          <a href="https://maps.google.com/?q=${d.latitude},${d.longitude}"
-             target="_blank" class="btn-maps">
-            📍 Maps
-          </a>` : '-'}
-      </td>
-    </tr>
-  `).join('');
+  // Kalkulasi slice data untuk halaman aktif
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  const pagedData = filteredData.slice(start, end);
+  
+  info.textContent = `Menampilkan ${start + 1}–${Math.min(end, total)} dari ${total} data`;
+
+  tbody.innerHTML = pagedData.map((d, i) => {
+    const globalIndex = start + i + 1;
+    return `
+      <tr>
+        <td class="muted">${globalIndex}</td>
+        <td class="muted">${d.tanggalInput || '-'}</td>
+        <td>${escHtml(d.namaTPI || '-')}</td>
+        <td><strong>${escHtml(d.namaDepo || '-')}</strong></td>
+        <td>${escHtml(d.namaPemilik || '-')}</td>
+        <td class="muted">${escHtml(d.nomorHP || '-')}</td>
+        <td><span class="jenis-badge ${getBadgeClass(d.jenisUsaha)}">${escHtml(d.jenisUsaha || '-')}</span></td>
+        <td class="muted" style="font-family:monospace;font-size:11px;">
+          ${d.latitude ? `${d.latitude}, ${d.longitude}` : '-'}
+        </td>
+        <td>
+          ${d.linkFoto
+            ? `<a href="${escHtml(d.linkFoto)}" target="_blank" class="btn-maps btn-foto">
+                 📷 Foto
+               </a>`
+            : '<span class="muted" style="font-size:11px;">—</span>'}
+        </td>
+        <td>
+          ${d.latitude ? `
+            <a href="https://maps.google.com/?q=${d.latitude},${d.longitude}"
+               target="_blank" class="btn-maps">
+              📍 Maps
+            </a>` : '-'}
+        </td>
+      </tr>
+    `;
+  }).join('');
+  
+  renderPagination(total);
+}
+
+/**
+ * Render kontrol pagination.
+ */
+function renderPagination(totalItems) {
+  const container = document.getElementById('pagination');
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">‹ Prev</button>`;
+  
+  // Tampilkan max 5 tombol halaman
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, startPage + 4);
+  if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+  for (let i = startPage; i <= endPage; i++) {
+    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+  }
+
+  html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next ›</button>`;
+  
+  container.innerHTML = html;
+}
+
+/**
+ * Berpindah halaman pagination.
+ */
+function changePage(page) {
+  currentPage = page;
+  renderTabel();
+  // Scroll ke atas tabel
+  document.querySelector('.section-header').scrollIntoView({ behavior: 'smooth' });
 }
 
 /**
@@ -604,7 +669,6 @@ function renderMarkers(data) {
           <strong>${escHtml(d.nomorHP || '-')}</strong>
         </div>
         <span class="popup-badge">${escHtml(d.jenisUsaha || '')}</span>
-        ${d.urlFoto ? `<a href="${d.urlFoto}" target="_blank" class="popup-link" style="background:#f1f5f9; color:#1e40af; border:1px solid #cbd5e1; margin-bottom:4px;">🖼 Lihat Foto</a>` : ''}
         <a href="https://maps.google.com/?q=${lat},${lng}"
            target="_blank" class="popup-link">🗺 Buka di Google Maps</a>
       </div>
@@ -654,10 +718,11 @@ function showToast(type, title, msg) {
  * Reset form input ke kondisi awal.
  */
 function resetForm() {
-  ['namaTPI', 'namaDepo', 'namaPemilik', 'nomorHP', 'alamatDepo', 'latitude', 'longitude', 'keterangan']
+  ['namaDepo', 'namaPemilik', 'nomorHP', 'alamatDepo', 'latitude', 'longitude', 'keterangan']
     .forEach(id => { document.getElementById(id).value = ''; });
 
-  document.getElementById('jenisUsaha').value = '';
+  document.getElementById('namaTPI').selectedIndex = 0;
+  document.getElementById('jenisUsaha').selectedIndex = 0;
   document.getElementById('fotoDepo').value = '';
 
   const preview = document.getElementById('fotoPreview');
@@ -686,11 +751,6 @@ function resetForm() {
 // INISIALISASI SAAT HALAMAN DIMUAT
 // ================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Update counter dari localStorage
-  updateCounter();
-
-  // Muat data awal untuk counter
-  const stored = JSON.parse(localStorage.getItem('depoTPI') || '[]');
-  allData = stored;
+  // Muat data langsung dari server saat pertama kali buka
+  muatData();
 });
-
