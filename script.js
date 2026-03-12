@@ -22,7 +22,7 @@
  * GANTI URL INI dengan URL Web App dari Google Apps Script Anda.
  * Cara deploy: Extensions → Apps Script → Deploy → New Deployment → Web App
  */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCfpcBOnBuLxVOFjq6Xjydk8G9T-z7Fr7ol037CR7naU7CPbvErdcGT165cn8kbO7-cw/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyT8589TGIbKmcbZ5N9sLR90h5NyYFmAmubo7tS10fh_2GrZOZm2G4Vhpke0_JLah35pg/exec';
 
 // State koordinat GPS yang sudah diambil
 let gpsData = { lat: null, lng: null, ready: false };
@@ -754,4 +754,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // Muat data langsung dari server saat pertama kali buka
   muatData();
 });
+
 
